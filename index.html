@@ -1,0 +1,1637 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>برمجة بايثون: هياكل البيانات والتحكم في التدفق | Ahmed Khaled</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+/* ===== Tokens ===== */
+:root {
+  --navy-950:#060d1f;
+  --navy-900:#0a1128;
+  --navy-800:#0f172a;
+  --navy-700:#1e293b;
+  --navy-600:#1e3a8a;
+  --navy-500:#1d4ed8;
+  --navy-400:#2563eb;
+  --navy-300:#3b82f6;
+
+  --gold:#fbbf24;
+  --gold-bright:#fcd34d;
+  --gold-dark:#d97706;
+
+  --white:#ffffff;
+  --gray-50:#f8fafc;
+  --gray-100:#f1f5f9;
+  --gray-200:#e2e8f0;
+  --gray-300:#cbd5e1;
+  --gray-400:#94a3b8;
+  --gray-500:#64748b;
+  --gray-600:#475569;
+  --gray-700:#334155;
+
+  --green:#10b981;
+  --green-light:#d1fae5;
+  --red:#ef4444;
+  --red-light:#fee2e2;
+  --orange:#f97316;
+  --orange-light:#ffedd5;
+
+  --maxw:1180px;
+  --r-sm:8px;
+  --r:14px;
+  --r-lg:22px;
+  --shadow-sm:0 1px 2px rgba(15,23,42,.04), 0 1px 3px rgba(15,23,42,.06);
+  --shadow:0 4px 12px rgba(15,23,42,.06), 0 2px 4px rgba(15,23,42,.04);
+  --shadow-lg:0 20px 50px rgba(15,23,42,.12);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  font-family:'Tajawal', -apple-system, sans-serif;
+  background:var(--gray-100);
+  color:var(--gray-700);
+  line-height:1.8;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+
+h1,h2,h3,h4 {
+  font-family:'Tajawal', sans-serif;
+  font-weight:800;
+  color:var(--navy-800);
+  line-height:1.25;
+  letter-spacing:-.01em;
+}
+a { color:var(--navy-500); text-decoration:none; transition:color .2s; }
+a:hover { color:var(--gold-dark); }
+
+.container { max-width:var(--maxw); margin:0 auto; padding:0 2rem; }
+section { padding:5rem 0; position:relative; }
+
+/* ===== Navbar ===== */
+.navbar {
+  position:sticky; top:0; z-index:100;
+  background:rgba(255,255,255,.85);
+  backdrop-filter:saturate(180%) blur(14px);
+  -webkit-backdrop-filter:saturate(180%) blur(14px);
+  border-bottom:1px solid var(--gray-200);
+}
+.navbar-inner {
+  max-width:var(--maxw); margin:0 auto;
+  padding:.85rem 2rem;
+  display:flex; align-items:center; justify-content:space-between; gap:1rem;
+}
+.brand {
+  display:flex; align-items:center; gap:.65rem;
+  font-weight:800; color:var(--navy-800); font-size:1rem;
+}
+.brand-mark {
+  width:36px; height:36px; border-radius:10px;
+  background:linear-gradient(135deg, var(--navy-700), var(--navy-500));
+  display:grid; place-items:center; color:var(--gold);
+  font-family:'JetBrains Mono', monospace; font-weight:700;
+  box-shadow:var(--shadow-sm);
+}
+.nav-links { display:flex; gap:.4rem; }
+.nav-links a {
+  padding:.5rem .85rem; border-radius:8px;
+  color:var(--gray-600); font-weight:500; font-size:.92rem;
+  transition:all .2s;
+}
+.nav-links a:hover { background:var(--gray-100); color:var(--navy-600); }
+.print-btn {
+  background:var(--navy-700); color:#fff; border:none;
+  padding:.55rem 1.1rem; border-radius:8px; cursor:pointer;
+  font-family:inherit; font-weight:700; font-size:.88rem;
+  display:inline-flex; align-items:center; gap:.5rem;
+  transition:all .2s;
+}
+.print-btn:hover { background:var(--navy-800); transform:translateY(-1px); }
+
+@media (max-width:880px){
+  .nav-links { display:none; }
+  .navbar-inner { padding:.75rem 1.25rem; }
+}
+
+/* ===== Cover ===== */
+.cover {
+  background:
+    radial-gradient(ellipse at top right, rgba(251,191,36,.08), transparent 50%),
+    radial-gradient(ellipse at bottom left, rgba(37,99,235,.10), transparent 55%),
+    linear-gradient(135deg, var(--navy-900) 0%, var(--navy-800) 60%, var(--navy-700) 100%);
+  color:#fff; padding:0; overflow:hidden; position:relative;
+}
+.cover::before {
+  content:''; position:absolute; inset:0;
+  background-image:
+    linear-gradient(rgba(251,191,36,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(251,191,36,.05) 1px, transparent 1px);
+  background-size:64px 64px;
+  mask-image:radial-gradient(ellipse at center, black 30%, transparent 80%);
+  -webkit-mask-image:radial-gradient(ellipse at center, black 30%, transparent 80%);
+}
+.cover-inner {
+  max-width:var(--maxw); margin:0 auto; padding:6rem 2rem 5rem;
+  display:grid; grid-template-columns:1.15fr 1fr; gap:4rem; align-items:center;
+  position:relative; z-index:2;
+}
+.cover-eyebrow {
+  display:inline-flex; align-items:center; gap:.6rem;
+  padding:.4rem 1rem; border-radius:100px;
+  background:rgba(251,191,36,.12); border:1px solid rgba(251,191,36,.3);
+  color:var(--gold-bright); font-weight:700; font-size:.85rem;
+  margin-bottom:1.5rem;
+}
+.cover-eyebrow .dot {
+  width:8px; height:8px; background:var(--gold); border-radius:50%;
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity:1; transform:scale(1); }
+  50% { opacity:.5; transform:scale(.8); }
+}
+.cover h1 {
+  font-size:clamp(2.4rem, 4.8vw, 4rem);
+  color:#fff; font-weight:900; margin-bottom:1.25rem;
+  letter-spacing:-.02em;
+}
+.cover h1 .accent { color:var(--gold); display:inline-block; }
+.cover .lead {
+  font-size:1.15rem; color:rgba(255,255,255,.75);
+  margin-bottom:2rem; max-width:560px; line-height:1.85;
+}
+.cover-meta {
+  display:flex; flex-wrap:wrap; gap:1.25rem; align-items:center;
+  padding-top:1.75rem; border-top:1px solid rgba(255,255,255,.1);
+}
+.cover-meta .meta-item {
+  display:flex; align-items:center; gap:.6rem;
+  color:rgba(255,255,255,.8); font-weight:500;
+}
+.cover-meta .meta-item i { color:var(--gold); }
+.cover-meta .author-name {
+  color:#fff; font-weight:800; font-size:1.05rem;
+}
+.cover-meta .link-chip {
+  display:inline-flex; align-items:center; gap:.5rem;
+  padding:.5rem 1rem; border-radius:100px;
+  background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15);
+  color:#fff; font-family:'JetBrains Mono', monospace; font-size:.85rem;
+  transition:all .25s;
+}
+.cover-meta .link-chip:hover {
+  background:var(--gold); color:var(--navy-900); border-color:var(--gold);
+}
+
+.cover-art {
+  position:relative; display:grid; place-items:center;
+  min-height:380px;
+}
+.cover-art svg { width:100%; max-width:420px; height:auto; }
+
+@media (max-width:880px){
+  .cover-inner { grid-template-columns:1fr; padding:4rem 1.5rem 3rem; gap:2.5rem; }
+  .cover-art { order:-1; min-height:280px; }
+  .cover-art svg { max-width:280px; }
+}
+
+/* ===== Section header ===== */
+.sec-head {
+  margin-bottom:3rem; max-width:760px;
+}
+.sec-eyebrow {
+  display:inline-flex; align-items:center; gap:.6rem;
+  padding:.35rem .9rem; border-radius:100px;
+  background:var(--navy-50, #eff6ff); color:var(--navy-600);
+  font-weight:700; font-size:.82rem; margin-bottom:1rem;
+  background:#eff6ff;
+}
+.sec-eyebrow i { color:var(--gold-dark); }
+.sec-head h2 {
+  font-size:clamp(1.85rem, 3vw, 2.5rem);
+  margin-bottom:.85rem;
+  color:var(--navy-800);
+}
+.sec-head p { color:var(--gray-600); font-size:1.05rem; }
+
+/* ===== Cards grid ===== */
+.cards-3 {
+  display:grid; grid-template-columns:repeat(3, 1fr); gap:1.5rem;
+}
+.cards-2 {
+  display:grid; grid-template-columns:repeat(2, 1fr); gap:1.5rem;
+}
+@media (max-width:880px){
+  .cards-3 { grid-template-columns:1fr; }
+  .cards-2 { grid-template-columns:1fr; }
+}
+
+.card {
+  background:var(--white);
+  border:1px solid var(--gray-200);
+  border-radius:var(--r);
+  padding:1.75rem;
+  position:relative;
+  transition:all .3s ease;
+  overflow:hidden;
+}
+.card::before {
+  content:''; position:absolute; top:0; right:0; left:0; height:3px;
+  background:linear-gradient(90deg, var(--navy-500), var(--gold));
+  transform:scaleX(0); transform-origin:right;
+  transition:transform .35s ease;
+}
+.card:hover {
+  transform:translateY(-4px);
+  box-shadow:var(--shadow-lg);
+  border-color:var(--navy-300);
+}
+.card:hover::before { transform:scaleX(1); }
+
+.card-icon {
+  width:52px; height:52px; border-radius:12px;
+  background:linear-gradient(135deg, var(--navy-700), var(--navy-500));
+  color:var(--gold);
+  display:grid; place-items:center; font-size:1.3rem;
+  margin-bottom:1.1rem;
+  box-shadow:var(--shadow-sm);
+}
+.card h3 {
+  font-size:1.2rem; margin-bottom:.6rem; color:var(--navy-800);
+}
+.card p { color:var(--gray-600); font-size:.97rem; margin-bottom:1rem; }
+.card .more {
+  max-height:0; overflow:hidden; opacity:0;
+  transition:max-height .4s ease, opacity .3s ease;
+  border-top:1px dashed var(--gray-200);
+  padding-top:0; margin-top:0;
+}
+.card:hover .more {
+  max-height:240px; opacity:1;
+  padding-top:1rem; margin-top:.5rem;
+}
+.card .more p {
+  font-size:.9rem; color:var(--gray-600); margin:0;
+}
+.card .tag {
+  display:inline-block; padding:.2rem .6rem;
+  background:var(--gray-100); color:var(--gray-600);
+  border-radius:6px; font-size:.78rem; font-weight:600;
+  font-family:'JetBrains Mono', monospace;
+  direction:ltr;
+}
+
+/* ===== Traffic light SVG box ===== */
+.metaphor-row {
+  display:grid; grid-template-columns:280px 1fr; gap:3rem;
+  align-items:center; margin-bottom:3rem;
+  background:var(--white); border:1px solid var(--gray-200);
+  border-radius:var(--r-lg); padding:2.5rem;
+}
+@media (max-width:880px){
+  .metaphor-row { grid-template-columns:1fr; gap:1.5rem; padding:1.5rem; }
+  .metaphor-row .svg-wrap { display:flex; justify-content:center; }
+}
+.metaphor-row .svg-wrap { display:grid; place-items:center; }
+.metaphor-row .svg-wrap svg { width:100%; max-width:220px; }
+.metaphor-row h3 { font-size:1.45rem; margin-bottom:.85rem; }
+.metaphor-row p { color:var(--gray-600); }
+
+/* ===== Code blocks ===== */
+pre {
+  background:var(--navy-900); color:#e2e8f0;
+  padding:1.25rem 1.5rem; border-radius:var(--r-sm);
+  overflow-x:auto; direction:ltr; text-align:left;
+  font-family:'JetBrains Mono', monospace;
+  font-size:.88rem; line-height:1.75;
+  margin:1rem 0;
+  border:1px solid var(--navy-700);
+}
+pre .k { color:#c084fc; }    /* keyword */
+pre .s { color:#fcd34d; }    /* string */
+pre .c { color:#64748b; font-style:italic; } /* comment */
+pre .f { color:#60a5fa; }    /* function */
+pre .n { color:#fb923c; }    /* number */
+pre .v { color:#e2e8f0; }    /* variable */
+pre .o { color:#f472b6; }    /* operator */
+
+.code-label {
+  display:inline-flex; align-items:center; gap:.5rem;
+  font-size:.8rem; color:var(--gray-500); font-weight:600;
+  font-family:'JetBrains Mono', monospace;
+  margin-bottom:.4rem; direction:ltr;
+}
+
+/* ===== Compare cards ===== */
+.compare-grid {
+  display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin:1.5rem 0 2rem;
+}
+@media (max-width:760px){ .compare-grid { grid-template-columns:1fr; } }
+
+.compare-card {
+  background:var(--white); border-radius:var(--r);
+  padding:1.5rem 1.5rem 1.25rem; border:1px solid var(--gray-200);
+  border-top:4px solid; position:relative;
+  transition:all .25s;
+}
+.compare-card:hover { box-shadow:var(--shadow); transform:translateY(-2px); }
+.compare-card.wrong { border-top-color:var(--red); }
+.compare-card.right { border-top-color:var(--green); }
+
+.compare-card .badge {
+  display:inline-flex; align-items:center; gap:.45rem;
+  padding:.35rem .85rem; border-radius:100px;
+  font-size:.82rem; font-weight:700; margin-bottom:1rem;
+}
+.compare-card.wrong .badge { background:var(--red-light); color:var(--red); }
+.compare-card.right .badge { background:var(--green-light); color:var(--green); }
+.compare-card .note {
+  font-size:.88rem; color:var(--gray-600);
+  border-top:1px dashed var(--gray-200); padding-top:.75rem; margin-top:.75rem;
+}
+
+/* ===== Tabs ===== */
+.tabs-wrap { margin-top:1.5rem; }
+.tabs {
+  display:flex; gap:.25rem; border-bottom:2px solid var(--gray-200);
+  margin-bottom:2rem; flex-wrap:wrap;
+}
+.tab-btn {
+  background:transparent; border:none;
+  padding:.95rem 1.4rem; font-family:inherit;
+  font-size:.98rem; font-weight:700; color:var(--gray-500);
+  cursor:pointer; position:relative; transition:color .2s;
+  display:inline-flex; align-items:center; gap:.55rem;
+}
+.tab-btn::after {
+  content:''; position:absolute; bottom:-2px; left:0; right:0;
+  height:3px; background:var(--navy-500);
+  transform:scaleX(0); transform-origin:center;
+  transition:transform .3s;
+}
+.tab-btn:hover { color:var(--navy-600); }
+.tab-btn.active { color:var(--navy-700); }
+.tab-btn.active::after { transform:scaleX(1); }
+.tab-btn i { font-size:.9rem; }
+
+.tab-panel { display:none; animation:fadeUp .4s ease; }
+.tab-panel.active { display:block; }
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(8px); }
+  to { opacity:1; transform:translateY(0); }
+}
+
+.tab-content {
+  background:var(--white); border:1px solid var(--gray-200);
+  border-radius:var(--r); padding:2rem;
+}
+.tab-content h4 {
+  font-size:1.1rem; color:var(--navy-700); margin-bottom:1rem;
+  display:flex; align-items:center; gap:.6rem;
+}
+.tab-content h4 i { color:var(--gold-dark); }
+.tab-content ul { list-style:none; padding:0; }
+.tab-content ul li {
+  padding:.6rem 0 .6rem 2rem; position:relative;
+  border-bottom:1px solid var(--gray-100);
+  color:var(--gray-700);
+}
+.tab-content ul li:last-child { border-bottom:none; }
+.tab-content ul li::before {
+  content:''; position:absolute; right:0; top:1.05rem;
+  width:8px; height:8px; border-radius:50%;
+  background:var(--navy-400);
+  box-shadow:0 0 0 4px rgba(37,99,235,.12);
+}
+.tab-content.pro ul li::before { background:var(--gold); box-shadow:0 0 0 4px rgba(251,191,36,.18); }
+
+/* ===== Accordion ===== */
+.accordion { margin-top:1.5rem; }
+.acc-item {
+  background:var(--white); border:1px solid var(--gray-200);
+  border-radius:var(--r); margin-bottom:1rem; overflow:hidden;
+  transition:all .25s;
+}
+.acc-item:hover { border-color:var(--navy-300); box-shadow:var(--shadow-sm); }
+.acc-head {
+  padding:1.25rem 1.5rem; cursor:pointer;
+  display:flex; align-items:center; justify-content:space-between; gap:1rem;
+  font-weight:700; color:var(--navy-800); user-select:none;
+}
+.acc-head .acc-title {
+  display:flex; align-items:center; gap:1rem; flex:1;
+}
+.acc-head .acc-num {
+  width:38px; height:38px; border-radius:10px;
+  background:var(--red-light); color:var(--red);
+  display:grid; place-items:center; font-weight:800;
+  font-family:'JetBrains Mono', monospace;
+  flex-shrink:0;
+}
+.acc-head .acc-icon {
+  width:34px; height:34px; border-radius:8px;
+  background:var(--gray-100); color:var(--gray-600);
+  display:grid; place-items:center; flex-shrink:0;
+  transition:all .3s;
+}
+.acc-item.open .acc-icon { background:var(--navy-600); color:#fff; transform:rotate(180deg); }
+.acc-body {
+  max-height:0; overflow:hidden;
+  transition:max-height .4s ease;
+  padding:0 1.5rem;
+}
+.acc-item.open .acc-body {
+  max-height:600px; padding:0 1.5rem 1.5rem;
+}
+.acc-body .problem {
+  background:var(--red-light); color:var(--red);
+  padding:.85rem 1.1rem; border-radius:8px;
+  margin-bottom:.85rem; font-size:.92rem;
+  border-right:3px solid var(--red);
+}
+.acc-body .solution {
+  background:var(--green-light); color:#065f46;
+  padding:.85rem 1.1rem; border-radius:8px;
+  font-size:.92rem; border-right:3px solid var(--green);
+}
+.acc-body .solution strong { color:#047857; }
+.acc-body .problem strong { color:#991b1b; }
+
+/* ===== Chart ===== */
+.chart-card {
+  background:var(--white); border:1px solid var(--gray-200);
+  border-radius:var(--r-lg); padding:2.5rem; margin-top:2rem;
+}
+.chart-head {
+  display:flex; justify-content:space-between; align-items:flex-start;
+  flex-wrap:wrap; gap:1rem; margin-bottom:2rem;
+}
+.chart-head h3 { font-size:1.4rem; margin-bottom:.4rem; }
+.chart-head p { color:var(--gray-600); font-size:.95rem; }
+.chart-legend {
+  display:flex; gap:1rem; flex-wrap:wrap;
+}
+.legend-item {
+  display:flex; align-items:center; gap:.5rem;
+  font-size:.85rem; color:var(--gray-600); font-weight:600;
+}
+.legend-swatch {
+  width:14px; height:14px; border-radius:4px;
+}
+.chart-canvas-wrap {
+  background:linear-gradient(180deg, var(--gray-50), var(--white));
+  border:1px solid var(--gray-200); border-radius:var(--r);
+  padding:1.5rem; position:relative;
+}
+#perfChart { width:100%; height:340px; display:block; }
+
+.chart-stats {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-top:1.5rem;
+}
+@media (max-width:760px){ .chart-stats { grid-template-columns:1fr; } }
+.stat-box {
+  background:var(--gray-50); border:1px solid var(--gray-200);
+  border-radius:10px; padding:1.1rem;
+}
+.stat-box .stat-num {
+  font-size:1.7rem; font-weight:900; color:var(--navy-700);
+  font-family:'JetBrains Mono', monospace; line-height:1;
+}
+.stat-box .stat-num.gold { color:var(--gold-dark); }
+.stat-box .stat-label {
+  font-size:.85rem; color:var(--gray-600); margin-top:.4rem;
+}
+
+/* ===== Feature cards (data structures) ===== */
+.ds-card {
+  background:var(--white); border:1px solid var(--gray-200);
+  border-radius:var(--r); padding:2rem; transition:all .3s;
+  position:relative; overflow:hidden;
+}
+.ds-card:hover { box-shadow:var(--shadow-lg); transform:translateY(-3px); }
+.ds-card .ds-head {
+  display:flex; align-items:center; gap:1rem; margin-bottom:1.25rem;
+  padding-bottom:1.25rem; border-bottom:1px solid var(--gray-100);
+}
+.ds-card .ds-icon {
+  width:56px; height:56px; border-radius:14px;
+  display:grid; place-items:center; font-size:1.5rem; color:#fff;
+}
+.ds-card.list .ds-icon { background:linear-gradient(135deg, var(--navy-600), var(--navy-400)); }
+.ds-card.set  .ds-icon { background:linear-gradient(135deg, var(--gold-dark), var(--gold)); color:var(--navy-900); }
+.ds-card h3 { font-size:1.3rem; }
+.ds-card .sub { font-size:.85rem; color:var(--gray-500); font-family:'JetBrains Mono', monospace; direction:ltr; }
+.ds-props { display:grid; gap:.6rem; margin:1rem 0 1.25rem; }
+.ds-prop {
+  display:flex; align-items:center; gap:.7rem; font-size:.92rem;
+  color:var(--gray-700);
+}
+.ds-prop i { color:var(--green); width:18px; }
+.ds-prop.no i { color:var(--red); }
+
+/* ===== Conclusion ===== */
+.conclusion {
+  background:
+    radial-gradient(ellipse at top, rgba(251,191,36,.10), transparent 60%),
+    linear-gradient(135deg, var(--navy-900), var(--navy-700));
+  color:#fff; text-align:center;
+}
+.conclusion h2 {
+  color:#fff; font-size:clamp(2rem, 4vw, 3rem);
+  margin-bottom:1.25rem;
+}
+.conclusion h2 .gold { color:var(--gold); }
+.conclusion p {
+  color:rgba(255,255,255,.78); font-size:1.1rem;
+  max-width:680px; margin:0 auto 2.5rem;
+}
+.cta-grid {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:1.25rem;
+  max-width:840px; margin:0 auto 2.5rem;
+}
+@media (max-width:760px){ .cta-grid { grid-template-columns:1fr; } }
+.cta-item {
+  background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1);
+  border-radius:14px; padding:1.5rem; text-align:right;
+  transition:all .3s;
+}
+.cta-item:hover {
+  background:rgba(251,191,36,.08); border-color:rgba(251,191,36,.3);
+  transform:translateY(-3px);
+}
+.cta-item i {
+  width:42px; height:42px; border-radius:10px;
+  background:rgba(251,191,36,.15); color:var(--gold);
+  display:grid; place-items:center; font-size:1.1rem;
+  margin-bottom:.85rem;
+}
+.cta-item h4 { color:#fff; font-size:1.05rem; margin-bottom:.4rem; }
+.cta-item p { color:rgba(255,255,255,.65); font-size:.88rem; margin:0; max-width:none; }
+
+.cta-button {
+  display:inline-flex; align-items:center; gap:.7rem;
+  padding:1rem 2.2rem; border-radius:100px;
+  background:var(--gold); color:var(--navy-900);
+  font-weight:800; font-size:1.05rem;
+  border:none; cursor:pointer; font-family:inherit;
+  transition:all .25s;
+  text-decoration:none;
+}
+.cta-button:hover {
+  background:var(--gold-bright); transform:translateY(-2px);
+  box-shadow:0 12px 30px rgba(251,191,36,.35);
+  color:var(--navy-900);
+}
+
+/* ===== Footer ===== */
+.footer {
+  background:var(--navy-950); color:rgba(255,255,255,.6);
+  padding:3rem 0 2rem; text-align:center;
+}
+.footer .footer-brand {
+  display:inline-flex; align-items:center; gap:.6rem;
+  color:#fff; font-weight:800; margin-bottom:.8rem;
+}
+.footer .footer-brand i { color:var(--gold); }
+.footer .footer-link {
+  display:inline-flex; align-items:center; gap:.5rem;
+  padding:.5rem 1.1rem; border-radius:100px;
+  background:rgba(255,255,255,.06); color:#fff;
+  font-family:'JetBrains Mono', monospace; font-size:.85rem;
+  margin:1rem 0; transition:all .2s;
+  border:1px solid rgba(255,255,255,.1);
+}
+.footer .footer-link:hover { background:var(--gold); color:var(--navy-900); }
+.footer small { display:block; color:rgba(255,255,255,.4); font-size:.8rem; }
+
+/* ===== Bullet points ===== */
+.bullets {
+  list-style:none; padding:0; margin:1.5rem 0;
+  display:grid; gap:.7rem;
+}
+.bullets li {
+  position:relative; padding-right:2rem;
+  color:var(--gray-700); line-height:1.7;
+}
+.bullets li::before {
+  content:''; position:absolute; right:0; top:.65rem;
+  width:24px; height:24px; border-radius:8px;
+  background:var(--navy-50, #eff6ff);
+  background:#eff6ff;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%231d4ed8'><path d='M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 1 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z'/></svg>");
+  background-size:14px; background-repeat:no-repeat; background-position:center;
+}
+.bullets li strong { color:var(--navy-700); font-weight:700; }
+
+/* ===== Print styles ===== */
+@media print {
+  @page { size:A4 portrait; margin:1.5cm; }
+
+  body { background:#fff !important; color:#000 !important; font-size:11pt; line-height:1.6; }
+  .no-print { display:none !important; }
+  .navbar { display:none !important; }
+
+  section { padding:1.2rem 0 !important; page-break-inside:auto; }
+  .container, .cover-inner, .navbar-inner { max-width:100% !important; padding:0 !important; }
+
+  .cover {
+    background:#fff !important; color:#000 !important;
+    min-height:auto !important; padding:0 !important;
+    border-bottom:3px solid #0f172a; margin-bottom:1.5rem;
+    page-break-after:always;
+  }
+  .cover::before { display:none !important; }
+  .cover h1, .cover h2, .cover h3, .cover .lead,
+  .cover-meta, .cover-meta .meta-item, .cover-meta .author-name { color:#000 !important; }
+  .cover-meta .link-chip {
+    background:#f1f5f9 !important; color:#000 !important; border:1px solid #cbd5e1 !important;
+  }
+  .cover-art { display:none !important; }
+  .cover-inner { grid-template-columns:1fr !important; }
+
+  h1,h2,h3,h4 { color:#0a1128 !important; page-break-after:avoid; }
+  a { color:#000 !important; text-decoration:underline; }
+
+  .card, .acc-item, .compare-card, .ds-card, .chart-card, .tab-content {
+    box-shadow:none !important;
+    border:1px solid #cbd5e1 !important;
+    break-inside:avoid; page-break-inside:avoid;
+  }
+  .card:hover, .ds-card:hover, .compare-card:hover { transform:none !important; }
+
+  .card .more {
+    max-height:none !important; opacity:1 !important;
+    padding-top:1rem !important; margin-top:.5rem !important;
+  }
+
+  .acc-body { max-height:none !important; padding:0 1.5rem 1.5rem !important; }
+  .acc-icon { display:none !important; }
+
+  .tab-panel { display:block !important; }
+  .tab-panel:not(.active) { display:block !important; opacity:1 !important; }
+  .tabs { display:none !important; }
+  .tab-content { margin-bottom:1rem; }
+
+  pre {
+    background:#f8fafc !important; color:#0f172a !important;
+    border:1px solid #cbd5e1 !important;
+    page-break-inside:avoid;
+  }
+  pre .k, pre .f, pre .s, pre .n, pre .o, pre .c { color:#0f172a !important; }
+
+  .conclusion {
+    background:#fff !important; color:#000 !important;
+    border-top:3px solid #0f172a; page-break-before:always;
+  }
+  .conclusion h2, .conclusion h2 .gold { color:#0a1128 !important; }
+  .conclusion p { color:#000 !important; }
+  .cta-item {
+    background:#f8fafc !important; border:1px solid #cbd5e1 !important;
+  }
+  .cta-item h4 { color:#000 !important; }
+  .cta-item p { color:#334155 !important; }
+  .cta-item i { background:#e0e7ff !important; color:#1e3a8a !important; }
+  .cta-button {
+    background:#fbbf24 !important; color:#0a1128 !important;
+    box-shadow:none !important;
+  }
+
+  .footer { background:#fff !important; color:#000 !important; border-top:1px solid #cbd5e1; }
+  .footer .footer-brand { color:#000 !important; }
+  .footer .footer-link { background:#f1f5f9 !important; color:#000 !important; border:1px solid #cbd5e1 !important; }
+  .footer small { color:#475569 !important; }
+
+  .bullets li::before { background:#e0e7ff !important; }
+
+  .cover-eyebrow, .sec-eyebrow {
+    background:#e0e7ff !important; color:#1e3a8a !important;
+    border:1px solid #cbd5e1 !important;
+  }
+  .cover-eyebrow .dot { background:#1e3a8a !important; }
+
+  .chart-canvas-wrap { background:#fff !important; border:1px solid #cbd5e1 !important; }
+  .stat-box { background:#f8fafc !important; border:1px solid #cbd5e1 !important; }
+  .stat-box .stat-num { color:#0a1128 !important; }
+  .stat-box .stat-num.gold { color:#92400e !important; }
+
+  #perfChart { max-height:280px; }
+}
+
+/* ===== Utilities ===== */
+.text-center { text-align:center; }
+.mt-2 { margin-top:2rem; }
+.mb-0 { margin-bottom:0; }
+</style>
+</head>
+<body>
+
+<!-- ===== Navbar ===== -->
+<nav class="navbar no-print">
+  <div class="navbar-inner">
+    <div class="brand">
+      <div class="brand-mark">Py</div>
+      <span>دليل بايثون · Ahmed Khaled</span>
+    </div>
+    <div class="nav-links">
+      <a href="#control-flow">التحكم في التدفق</a>
+      <a href="#data-structures">هياكل البيانات</a>
+      <a href="#pro-trick">حيلة المحترفين</a>
+      <a href="#mistakes">أخطاء شائعة</a>
+    </div>
+    <button class="print-btn" onclick="window.print()">
+      <i class="fa-solid fa-print"></i> طباعة PDF
+    </button>
+  </div>
+</nav>
+
+<!-- ===== COVER ===== -->
+<section class="cover" id="cover">
+  <div class="cover-inner">
+    <div class="cover-text">
+      <span class="cover-eyebrow">
+        <span class="dot"></span>
+        دليل تعليمي تفاعلي · مستوى متوسط
+      </span>
+      <h1>
+        برمجة بايثون:<br>
+        <span class="accent">هياكل البيانات</span> والتحكم في التدفق
+      </h1>
+      <p class="lead">
+        من إشارات المرور التي توجّه مسار الكود، إلى الخزائن التي تنظّم بياناتك،
+        وصولًا إلى حيلة المحترفين لتسريع الأداء — رحلة عملية في قلب بايثون.
+      </p>
+      <div class="cover-meta">
+        <div class="meta-item">
+          <i class="fa-solid fa-user-graduate"></i>
+          <span class="author-name">Ahmed Khaled</span>
+        </div>
+        <div class="meta-item">
+          <i class="fa-brands fa-linkedin"></i>
+          <a class="link-chip" href="https://www.linkedin.com/in/ahmed-khalid97/" target="_blank" rel="noopener">
+            linkedin.com/in/ahmed-khalid97
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="cover-art">
+      <!-- Decorative SVG: Python-themed geometric composition -->
+      <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#1d4ed8"/>
+            <stop offset="100%" stop-color="#0a1128"/>
+          </linearGradient>
+          <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#fbbf24"/>
+            <stop offset="100%" stop-color="#d97706"/>
+          </linearGradient>
+          <linearGradient id="g3" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#3b82f6"/>
+            <stop offset="100%" stop-color="#1e3a8a"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Outer ring -->
+        <circle cx="200" cy="200" r="170" fill="none" stroke="rgba(251,191,36,.25)" stroke-width="1" stroke-dasharray="4 6"/>
+        <circle cx="200" cy="200" r="130" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="1"/>
+
+        <!-- Hex code node -->
+        <g transform="translate(200,200)">
+          <polygon points="-90,0 -45,-78 45,-78 90,0 45,78 -45,78" fill="url(#g1)" stroke="#fbbf24" stroke-width="1.5"/>
+          <polygon points="-70,0 -35,-60 35,-60 70,0 35,60 -35,60" fill="none" stroke="rgba(251,191,36,.35)" stroke-width="1"/>
+          <text x="0" y="-10" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="14" fill="#fbbf24" font-weight="700">if · for</text>
+          <text x="0" y="12" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="14" fill="#fbbf24" font-weight="700">while</text>
+          <text x="0" y="36" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="rgba(255,255,255,.6)">control flow</text>
+        </g>
+
+        <!-- Floating cards -->
+        <g transform="translate(85,90)">
+          <rect x="0" y="0" width="70" height="50" rx="8" fill="url(#g3)" stroke="rgba(255,255,255,.15)"/>
+          <text x="35" y="22" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#fbbf24" font-weight="700">[ list ]</text>
+          <text x="35" y="38" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="8" fill="rgba(255,255,255,.6)">ordered</text>
+        </g>
+
+        <g transform="translate(255,80)">
+          <rect x="0" y="0" width="70" height="50" rx="8" fill="url(#g2)" stroke="rgba(255,255,255,.2)"/>
+          <text x="35" y="22" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#0a1128" font-weight="700">{ set }</text>
+          <text x="35" y="38" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="8" fill="rgba(10,17,40,.7)">unique</text>
+        </g>
+
+        <g transform="translate(85,270)">
+          <rect x="0" y="0" width="70" height="50" rx="8" fill="rgba(255,255,255,.06)" stroke="rgba(251,191,36,.4)"/>
+          <text x="35" y="22" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#fbbf24" font-weight="700">[ x for ]</text>
+          <text x="35" y="38" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="8" fill="rgba(255,255,255,.6)">compreh.</text>
+        </g>
+
+        <g transform="translate(255,275)">
+          <rect x="0" y="0" width="70" height="50" rx="8" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.2)"/>
+          <text x="35" y="22" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#fbbf24" font-weight="700">==</text>
+          <text x="35" y="38" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="8" fill="rgba(255,255,255,.6)">compare</text>
+        </g>
+
+        <!-- Connecting lines -->
+        <line x1="120" y1="115" x2="160" y2="170" stroke="rgba(251,191,36,.3)" stroke-width="1" stroke-dasharray="2 3"/>
+        <line x1="280" y1="105" x2="240" y2="170" stroke="rgba(251,191,36,.3)" stroke-width="1" stroke-dasharray="2 3"/>
+        <line x1="120" y1="285" x2="160" y2="230" stroke="rgba(251,191,36,.3)" stroke-width="1" stroke-dasharray="2 3"/>
+        <line x1="280" y1="290" x2="240" y2="230" stroke="rgba(251,191,36,.3)" stroke-width="1" stroke-dasharray="2 3"/>
+
+        <!-- Speed lines -->
+        <g opacity="0.5">
+          <line x1="20" y1="200" x2="50" y2="200" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"/>
+          <line x1="350" y1="200" x2="380" y2="200" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"/>
+          <line x1="200" y1="20" x2="200" y2="40" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"/>
+          <line x1="200" y1="360" x2="200" y2="380" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SECTION: Control Flow ===== -->
+<section id="control-flow">
+  <div class="container">
+    <div class="sec-head">
+      <span class="sec-eyebrow"><i class="fa-solid fa-traffic-light"></i> القسم الأول · Control Flow</span>
+      <h2>إشارات المرور في كودك: التحكم في مسار التنفيذ</h2>
+      <p>كما تنظّم إشارات المرور حركة السيارات، تنظم جمل التحكم مسار الكود — متى يتوقف، متى ينعطف، ومتى يكرر نفسه.</p>
+    </div>
+
+    <div class="metaphor-row">
+      <div class="svg-wrap">
+        <!-- Traffic light SVG -->
+        <svg viewBox="0 0 200 360" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <defs>
+            <linearGradient id="pole" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#475569"/>
+              <stop offset="50%" stop-color="#94a3b8"/>
+              <stop offset="100%" stop-color="#475569"/>
+            </linearGradient>
+            <radialGradient id="redGlow" cx=".35" cy=".35">
+              <stop offset="0%" stop-color="#fca5a5"/>
+              <stop offset="60%" stop-color="#ef4444"/>
+              <stop offset="100%" stop-color="#7f1d1d"/>
+            </radialGradient>
+            <radialGradient id="yellowGlow" cx=".35" cy=".35">
+              <stop offset="0%" stop-color="#fef3c7"/>
+              <stop offset="60%" stop-color="#fbbf24"/>
+              <stop offset="100%" stop-color="#92400e"/>
+            </radialGradient>
+            <radialGradient id="greenGlow" cx=".35" cy=".35">
+              <stop offset="0%" stop-color="#bbf7d0"/>
+              <stop offset="60%" stop-color="#10b981"/>
+              <stop offset="100%" stop-color="#064e3b"/>
+            </radialGradient>
+          </defs>
+
+          <!-- Housing -->
+          <rect x="40" y="20" width="120" height="320" rx="22" fill="#1e293b" stroke="#0f172a" stroke-width="3"/>
+          <rect x="50" y="30" width="100" height="300" rx="16" fill="#0f172a"/>
+
+          <!-- Red light -->
+          <circle cx="100" cy="80" r="38" fill="url(#redGlow)"/>
+          <circle cx="100" cy="80" r="38" fill="none" stroke="#000" stroke-width="2" opacity=".3"/>
+          <text x="100" y="86" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="14" fill="#fff" font-weight="700">if</text>
+
+          <!-- Yellow light -->
+          <circle cx="100" cy="180" r="38" fill="url(#yellowGlow)"/>
+          <circle cx="100" cy="180" r="38" fill="none" stroke="#000" stroke-width="2" opacity=".3"/>
+          <text x="100" y="186" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="12" fill="#0f172a" font-weight="700">for</text>
+
+          <!-- Green light -->
+          <circle cx="100" cy="280" r="38" fill="url(#greenGlow)"/>
+          <circle cx="100" cy="280" r="38" fill="none" stroke="#000" stroke-width="2" opacity=".3"/>
+          <text x="100" y="286" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#fff" font-weight="700">while</text>
+
+          <!-- Pole -->
+          <rect x="95" y="340" width="10" height="20" fill="url(#pole)"/>
+        </svg>
+      </div>
+      <div>
+        <h3><i class="fa-solid fa-route" style="color:var(--navy-500);"></i> &nbsp;لماذا "إشارات المرور"؟</h3>
+        <p>
+          تخيّل كودك كسيارة تسير في طريق. أحيانًا يجب أن تتوقف عند شرط (<span class="tag">if</span>)،
+          وأحيانًا تدور في حلقة دائرية (<span class="tag">for</span> / <span class="tag">while</span>)
+          حتى تصل إلى وجهتها. بدون هذه الإشارات، ينفّذ بايثون سطورك سطرًا بعد سطر بلا أي انعطاف —
+          ومعها يصبح الكود ذكيًا قادرًا على اتخاذ القرارات والتكرار.
+        </p>
+        <ul class="bullets" style="margin-top:1rem;">
+          <li><strong>الشرط (if):</strong> قرّر هل تنفّذ كتلة كود بناءً على شرط منطقي.</li>
+          <li><strong>الحلقة (for):</strong> كرّر تنفيذ كود بعدد محدود من المرات.</li>
+          <li><strong>الحلقة (while):</strong> استمر في التنفيذ طالما الشرط صحيح.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="cards-3">
+      <div class="card">
+        <div class="card-icon"><i class="fa-solid fa-code-branch"></i></div>
+        <h3>الجمل الشرطية if</h3>
+        <p>إشارة حمراء: توقف الكود واسأل — هل الشرط صحيح؟ إن نعم، خذ هذا المسار.</p>
+        <div class="code-label">example.py</div>
+<pre><span class="k">if</span> score <span class="o">&gt;=</span> <span class="n">90</span>:
+    grade <span class="o">=</span> <span class="s">'A'</span>
+<span class="k">elif</span> score <span class="o">&gt;=</span> <span class="n">80</span>:
+    grade <span class="o">=</span> <span class="s">'B'</span>
+<span class="k">else</span>:
+    grade <span class="o">=</span> <span class="s">'C'</span></pre>
+        <div class="more">
+          <p><strong>نصيحة:</strong> يمكن دمج الشروط بـ <code style="background:var(--gray-100);padding:.1rem .4rem;border-radius:4px;">and</code> و <code style="background:var(--gray-100);padding:.1rem .4rem;border-radius:4px;">or</code>. تجنّب تداخل أكثر من 3 مستويات — استخدم دالة بدلًا من ذلك.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon" style="background:linear-gradient(135deg,#d97706,#fbbf24);color:#0a1128;"><i class="fa-solid fa-rotate"></i></div>
+        <h3>حلقة for</h3>
+        <p>إشارة صفراء: كرّر التنفيذ عبر عناصر قائمة أو نطاق محدد — تعرف بدايتك ونهايتك.</p>
+        <div class="code-label">example.py</div>
+<pre><span class="c"># طباعة الأرقام من 0 إلى 4</span>
+<span class="k">for</span> i <span class="k">in</span> <span class="f">range</span>(<span class="n">5</span>):
+    <span class="f">print</span>(i)
+
+<span class="c"># المرور على عناصر قائمة</span>
+<span class="k">for</span> name <span class="k">in</span> names:
+    <span class="f">print</span>(name)</pre>
+        <div class="more">
+          <p><strong>نصيحة:</strong> استخدم <code style="background:var(--gray-100);padding:.1rem .4rem;border-radius:4px;">enumerate()</code> للحصول على الفهرس والعنصر معًا بدلًا من <code style="background:var(--gray-100);padding:.1rem .4rem;border-radius:4px;">range(len(...))</code>.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon" style="background:linear-gradient(135deg,#065f46,#10b981);color:#fff;"><i class="fa-solid fa-arrows-rotate"></i></div>
+        <h3>حلقة while</h3>
+        <p>إشارة خضراء: استمر في الدوران طالما الشرط صحيح — مثالية للحالات غير المحدودة مسبقًا.</p>
+        <div class="code-label">example.py</div>
+<pre>count <span class="o">=</span> <span class="n">0</span>
+<span class="k">while</span> count <span class="o">&lt;</span> <span class="n">5</span>:
+    <span class="f">print</span>(count)
+    count <span class="o">+=</span> <span class="n">1</span>
+
+<span class="c"># انتبه: حدّث المتغير</span>
+<span class="c"># وإلا ستدور للأبد!</span></pre>
+        <div class="more">
+          <p><strong>تحذير:</strong> نسيت تحديث المتغير؟ حلقة لا نهائية. استخدم <code style="background:var(--gray-100);padding:.1rem .4rem;border-radius:4px;">break</code> للخروج الطارئ.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SECTION: Data Structures ===== -->
+<section id="data-structures" style="background:var(--gray-50);">
+  <div class="container">
+    <div class="sec-head">
+      <span class="sec-eyebrow"><i class="fa-solid fa-box-archive"></i> القسم الثاني · Data Structures</span>
+      <h2>خزائن البيانات: Lists و Sets</h2>
+      <p>البيانات تحتاج أن تُخزَّن بذكاء. القوائم تحفظ الترتيب وتقبل التكرار، والمجموعات تضمن التفرد وتعمل بسرعة البرق.</p>
+    </div>
+
+    <div class="metaphor-row">
+      <div class="svg-wrap">
+        <!-- Storage cabinet SVG -->
+        <svg viewBox="0 0 260 280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <defs>
+            <linearGradient id="cabBody" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#1e3a8a"/>
+              <stop offset="100%" stop-color="#0f172a"/>
+            </linearGradient>
+            <linearGradient id="drawer" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#3b82f6"/>
+              <stop offset="100%" stop-color="#1d4ed8"/>
+            </linearGradient>
+            <linearGradient id="drawerGold" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#fcd34d"/>
+              <stop offset="100%" stop-color="#d97706"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Cabinet body -->
+          <rect x="20" y="20" width="220" height="240" rx="12" fill="url(#cabBody)" stroke="#0a1128" stroke-width="2"/>
+
+          <!-- Top label -->
+          <rect x="80" y="32" width="100" height="22" rx="4" fill="#fbbf24"/>
+          <text x="130" y="48" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#0a1128" font-weight="700">DATA</text>
+
+          <!-- Drawers (list) -->
+          <g>
+            <rect x="35" y="68" width="190" height="34" rx="6" fill="url(#drawer)" stroke="#0a1128" stroke-width="1"/>
+            <circle cx="200" cy="85" r="3" fill="#fbbf24"/>
+            <text x="160" y="89" font-family="JetBrains Mono, monospace" font-size="10" fill="#fbbf24">[0] apple</text>
+          </g>
+          <g>
+            <rect x="35" y="108" width="190" height="34" rx="6" fill="url(#drawer)" stroke="#0a1128" stroke-width="1"/>
+            <circle cx="200" cy="125" r="3" fill="#fbbf24"/>
+            <text x="160" y="129" font-family="JetBrains Mono, monospace" font-size="10" fill="#fbbf24">[1] banana</text>
+          </g>
+          <g>
+            <rect x="35" y="148" width="190" height="34" rx="6" fill="url(#drawer)" stroke="#0a1128" stroke-width="1"/>
+            <circle cx="200" cy="165" r="3" fill="#fbbf24"/>
+            <text x="160" y="169" font-family="JetBrains Mono, monospace" font-size="10" fill="#fbbf24">[2] apple</text>
+          </g>
+
+          <!-- Set drawer (different color, no indices) -->
+          <g>
+            <rect x="35" y="194" width="190" height="54" rx="6" fill="url(#drawerGold)" stroke="#0a1128" stroke-width="1"/>
+            <text x="185" y="214" font-family="JetBrains Mono, monospace" font-size="10" fill="#0a1128" font-weight="700">{ apple, banana }</text>
+            <text x="180" y="232" font-family="Tajawal, sans-serif" font-size="9" fill="#0a1128">مجموعة فريدة · بلا ترتيب</text>
+          </g>
+
+          <!-- Side bolts -->
+          <circle cx="28" cy="40" r="2" fill="#94a3b8"/>
+          <circle cx="28" cy="240" r="2" fill="#94a3b8"/>
+          <circle cx="232" cy="40" r="2" fill="#94a3b8"/>
+          <circle cx="232" cy="240" r="2" fill="#94a3b8"/>
+        </svg>
+      </div>
+      <div>
+        <h3><i class="fa-solid fa-warehouse" style="color:var(--navy-500);"></i> &nbsp;لماذا "الخزائن"؟</h3>
+        <p>
+          القائمة <span class="tag">list</span> كخزانة بأدراج مرقّمة — كل عنصر له موقع محدد، ويمكن تكرار المحتوى.
+          المجموعة <span class="tag">set</span> كصندوق واحد يجمع العناصر الفريدة فقط — لا تكرار، ولا ترتيب، لكن البحث فيها فائق السرعة.
+        </p>
+        <ul class="bullets" style="margin-top:1rem;">
+          <li><strong>القائمة List:</strong> مرتبة، قابلة للتعديل، تقبل التكرار — للمجموعات المتسلسلة.</li>
+          <li><strong>المجموعة Set:</strong> غير مرتبة، فريدة — لإزالة التكرار والبحث السريع.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="cards-2">
+      <div class="ds-card list">
+        <div class="ds-head">
+          <div class="ds-icon"><i class="fa-solid fa-list-ol"></i></div>
+          <div>
+            <h3>القوائم Lists</h3>
+            <div class="sub">fruits = ['apple', 'banana', 'apple']</div>
+          </div>
+        </div>
+        <p style="color:var(--gray-600); font-size:.95rem; margin-bottom:1rem;">
+          خزانة بأدراج مرقّمة — تحفظ الترتيب وتقبل التكرار. مثالية للبيانات المتسلسلة.
+        </p>
+        <div class="ds-props">
+          <div class="ds-prop"><i class="fa-solid fa-check"></i> مرتبة (تحافظ على ترتيب الإدراج)</div>
+          <div class="ds-prop"><i class="fa-solid fa-check"></i> تقبل العناصر المكررة</div>
+          <div class="ds-prop"><i class="fa-solid fa-check"></i> قابلة للتعديل (إضافة/حذف)</div>
+          <div class="ds-prop"><i class="fa-solid fa-check"></i> الوصول بالفهرس O(1)</div>
+          <div class="ds-prop no"><i class="fa-solid fa-xmark"></i> البحث عن قيمة O(n) — بطيء</div>
+        </div>
+<pre><span class="v">fruits</span> <span class="o">=</span> [<span class="s">'apple'</span>, <span class="s">'banana'</span>, <span class="s">'apple'</span>]
+<span class="f">print</span>(fruits[<span class="n">0</span>])       <span class="c"># 'apple'</span>
+<span class="f">print</span>(<span class="f">len</span>(fruits))    <span class="c"># 3</span>
+fruits.<span class="f">append</span>(<span class="s">'orange'</span>)
+fruits.<span class="f">remove</span>(<span class="s">'banana'</span>)</pre>
+      </div>
+
+      <div class="ds-card set">
+        <div class="ds-head">
+          <div class="ds-icon"><i class="fa-solid fa-set-group"></i></div>
+          <div>
+            <h3>المجموعات Sets</h3>
+            <div class="sub">unique = {'apple', 'banana', 'orange'}</div>
+          </div>
+        </div>
+        <p style="color:var(--gray-600); font-size:.95rem; margin-bottom:1rem;">
+          صندوق العناصر الفريدة — لا تكرار ولا ترتيب، لكن البحث والإضافة بسرعة البرق.
+        </p>
+        <div class="ds-props">
+          <div class="ds-prop"><i class="fa-solid fa-check"></i> عناصر فريدة فقط (بلا تكرار)</div>
+          <div class="ds-prop"><i class="fa-solid fa-check"></i> البحث والإضافة والحذف O(1)</div>
+          <div class="ds-prop"><i class="fa-solid fa-check"></i> عمليات تركيبية (اتحاد، تقاطع)</div>
+          <div class="ds-prop no"><i class="fa-solid fa-xmark"></i> غير مرتبة — لا وصول بالفهرس</div>
+          <div class="ds-prop no"><i class="fa-solid fa-xmark"></i> لا تقبل العناصر القابلة للتغيير</div>
+        </div>
+<pre><span class="v">unique</span> <span class="o">=</span> {<span class="s">'apple'</span>, <span class="s">'banana'</span>, <span class="s">'apple'</span>}
+<span class="f">print</span>(unique)        <span class="c"># {'apple','banana'}</span>
+<span class="f">print</span>(<span class="s">'apple'</span> <span class="k">in</span> unique)  <span class="c"># True · سريع!</span>
+
+a <span class="o">=</span> {<span class="n">1</span>,<span class="n">2</span>,<span class="n">3</span>}; b <span class="o">=</span> {<span class="n">3</span>,<span class="n">4</span>,<span class="n">5</span>}
+<span class="f">print</span>(a <span class="o">&amp;</span> b)          <span class="c"># {3}  تقاطع</span>
+<span class="f">print</span>(a <span class="o">|</span> b)          <span class="c"># {1,2,3,4,5} اتحاد</span></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SECTION: Pro Trick — List Comprehension + Chart ===== -->
+<section id="pro-trick">
+  <div class="container">
+    <div class="sec-head">
+      <span class="sec-eyebrow"><i class="fa-solid fa-bolt"></i> القسم الثالث · Pro Trick</span>
+      <h2>حيلة المحترفين: List Comprehension</h2>
+      <p>لماذا يكتب المحترفون حلقة for في سطر واحد؟ لأنها أسرع، أنظف، وأكثر "بايثونية". دعنا نقارن.</p>
+    </div>
+
+    <div class="compare-grid">
+      <div class="compare-card wrong">
+        <span class="badge"><i class="fa-solid fa-circle-xmark"></i> الطريقة التقليدية ❌</span>
+        <div class="code-label">slow.py</div>
+<pre>squares <span class="o">=</span> []
+<span class="k">for</span> i <span class="k">in</span> <span class="f">range</span>(<span class="n">1000</span>):
+    squares.<span class="f">append</span>(i <span class="o">**</span> <span class="n">2</span>)</pre>
+        <div class="note">
+          <strong>المشكلة:</strong> استدعاء <code>.append()</code> ألف مرة + إنشاء قائمة فارغة + حلقة صريحة = كود طويل وأبطأ.
+        </div>
+      </div>
+
+      <div class="compare-card right">
+        <span class="badge"><i class="fa-solid fa-circle-check"></i> طريقة المحترفين ✅</span>
+        <div class="code-label">fast.py</div>
+<pre>squares <span class="o">=</span> [i <span class="o">**</span> <span class="n">2</span> <span class="k">for</span> i <span class="k">in</span> <span class="f">range</span>(<span class="n">1000</span>)]</pre>
+        <div class="note">
+          <strong>الميزة:</strong> سطر واحد، أسرع بنسبة ~50–70%، ومنطقها مضمن في C داخل بايثون.
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart card -->
+    <div class="chart-card">
+      <div class="chart-head">
+        <div>
+          <h3>مقارنة سرعة التنفيذ</h3>
+          <p>حساب مربعات الأرقام من 0 إلى 999,999 — متوسط 100 تشغيل (microseconds).</p>
+        </div>
+        <div class="chart-legend">
+          <div class="legend-item">
+            <div class="legend-swatch" style="background:#ef4444;"></div>
+            for + append
+          </div>
+          <div class="legend-item">
+            <div class="legend-swatch" style="background:#10b981;"></div>
+            List Comprehension
+          </div>
+          <div class="legend-item">
+            <div class="legend-swatch" style="background:#fbbf24;"></div>
+            map() + lambda
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-canvas-wrap">
+        <canvas id="perfChart"></canvas>
+      </div>
+
+      <div class="chart-stats">
+        <div class="stat-box">
+          <div class="stat-num">~2.1x</div>
+          <div class="stat-label">أسرع مع List Comprehension مقارنة بـ for التقليدية</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num gold">1 سطر</div>
+          <div class="stat-label">بدلًا من 3 أسطر — كود أنظف وأقصر</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">C-level</div>
+          <div class="stat-label">التنفيذ يتم في طبقة C داخل بايثون — لا overhead</div>
+        </div>
+      </div>
+
+      <div style="margin-top:1.75rem; padding:1.25rem 1.4rem; background:#eff6ff; border-right:4px solid var(--navy-500); border-radius:8px;">
+        <h4 style="font-size:1.05rem; color:var(--navy-700); margin-bottom:.5rem;">
+          <i class="fa-solid fa-lightbulb" style="color:var(--gold-dark);"></i> &nbsp;صيغ متقدمة لـ List Comprehension
+        </h4>
+<pre><span class="c"># 1. مع شرط (filter)</span>
+evens <span class="o">=</span> [x <span class="k">for</span> x <span class="k">in</span> <span class="f">range</span>(<span class="n">20</span>) <span class="k">if</span> x <span class="o">%</span> <span class="n">2</span> <span class="o">==</span> <span class="n">0</span>]
+
+<span class="c"># 2. مع شرط if/else (transform)</span>
+labels <span class="o">=</span> [<span class="s">'even'</span> <span class="k">if</span> x<span class="o">%</span><span class="n">2</span><span class="o">==</span><span class="n">0</span> <span class="k">else</span> <span class="s">'odd'</span> <span class="k">for</span> x <span class="k">in</span> <span class="f">range</span>(<span class="n">10</span>)]
+
+<span class="c"># 3. حلقات متداخلة</span>
+pairs <span class="o">=</span> [(x,y) <span class="k">for</span> x <span class="k">in</span> <span class="f">range</span>(<span class="n">3</span>) <span class="k">for</span> y <span class="k">in</span> <span class="f">range</span>(<span class="n">3</span>)]
+
+<span class="c"># 4. Dict comprehension</span>
+sq_map <span class="o">=</span> {x: x<span class="o">**</span><span class="n">2</span> <span class="k">for</span> x <span class="k">in</span> <span class="f">range</span>(<span class="n">5</span>)}</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SECTION: Tabs (Beginner / Pro) ===== -->
+<section id="tips" style="background:var(--gray-50);">
+  <div class="container">
+    <div class="sec-head">
+      <span class="sec-eyebrow"><i class="fa-solid fa-user-graduate"></i> تبويبات تفاعلية</span>
+      <h2>شرح للمبتدئين · ونصائح للمحترفين</h2>
+      <p>اختر مستواك — المبتدئ يفهم الأساسيات، والمحترف يكتشف أسرار الأداء.</p>
+    </div>
+
+    <div class="tabs-wrap">
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="beginner">
+          <i class="fa-solid fa-seedling"></i> شرح للمبتدئين
+        </button>
+        <button class="tab-btn" data-tab="pro">
+          <i class="fa-solid fa-rocket"></i> نصائح للمحترفين
+        </button>
+      </div>
+
+      <div class="tab-panel active" id="tab-beginner">
+        <div class="tab-content">
+          <h4><i class="fa-solid fa-book-open"></i> ابدأ من هنا — المفاهيم الأساسية</h4>
+          <ul>
+            <li><strong>التحكم في التدفق</strong> يعني قدرتك على جعل الكود يتخذ قرارات: "إذا كان كذا، افعل كذا". هذا ما يجعل البرامج ذكية.</li>
+            <li><strong>الجملة الشرطية <code style="background:var(--gray-100);padding:.1rem .4rem;border-radius:4px;">if</code></strong> تسأل سؤالًا نعم/لا. إن كان الجواب "نعم"، تُنفّذ الكود بداخلها.</li>
+            <li><strong>الحلقة <code style="background:var(--gray-100);padding:.1rem .4rem;border-radius:4px;">for</code></strong> تكرر كودًا على مجموعة عناصر — مثل المرور على كل طالب في قائمة وتحيّته.</li>
+            <li><strong>الحلقة <code style="background:var(--gray-100);padding:.1rem .4rem;border-radius:4px;">while</code></strong> تكرر الكود "طالما" شرط معين صحيح — مثل: استمر في القرع على الباب طالما لم يفتح أحد.</li>
+            <li><strong>القائمة <code style="background:var(--gray-100);padding:.1rem .4rem;border-radius:4px;">list</code></strong> وعاء يحفظ عدة عناصر بالترتيب — مثل قائمة التسوّق.</li>
+            <li><strong>المجموعة <code style="background:var(--gray-100);padding:.1rem .4rem;border-radius:4px;">set</code></strong> وعاء يحفظ عناصر فريدة فقط — مثل مجموعة أصدقائك (لا يمكن تكرار نفس الشخص).</li>
+            <li><strong>List Comprehension</strong> اختصار جميل لكتابة حلقة for في سطر واحد لإنشاء قائمة — ستتعلمها بالممارسة.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="tab-pro">
+        <div class="tab-content pro">
+          <h4><i class="fa-solid fa-trophy"></i> ارفع مستواك — أسرار الأداء والأناقة</h4>
+          <ul>
+            <li><strong>استبدل <code style="background:var(--gray-100);padding:.1rem .4rem;border-radius:4px;">range(len(x))</code> بـ <code style="background:var(--gray-100);padding:.1rem .4rem;border-radius:4px;">enumerate(x)</code></strong> — أنظف وأسرع ويعطيك الفهرس والعنصر معًا.</li>
+            <li><strong>للبحث في مجموعات كبيرة، حوّل القائمة إلى set أولًا</strong> — البحث O(1) بدلًا من O(n). فرق هائل على مليون عنصر.</li>
+            <li><strong>تجنّب تعديل القائمة أثناء المرور عليها</strong> — يسبب أخطاء خفية. أنشئ نسخة أو استخدم <code style="background:var(--gray-100);padding:.1rem .4rem;border-radius:4px;">list comprehension</code> بدلًا من ذلك.</li>
+            <li><strong>استخدم <code style="background:var(--gray-100);padding:.1rem .4rem;border-radius:4px;">any()</code> و <code style="background:var(--gray-100);padding:.1rem .4rem;border-radius:4px;">all()</code></strong> للتحقق من وجود/شمول شرط — أسرع وأوضح من حلقة for.</li>
+            <li><strong>Profile قبل التحسين</strong> — استخدم <code style="background:var(--gray-100);padding:.1rem .4rem;border-radius:4px;">cProfile</code> و <code style="background:var(--gray-100);padding:.1rem .4rem;border-radius:4px;">timeit</code> لمعرفة الجزء البطيء فعلًا. لا تخمين.</li>
+            <li><strong>المولدات <code style="background:var(--gray-100);padding:.1rem .4rem;border-radius:4px;">(x for x in ...)</code></strong> أفضل من List Comprehension للبيانات الضخمة — لا تستهلك ذاكرة.</li>
+            <li><strong>احذر: List Comprehension المفرط</strong> — إن تجاوزت 80 حرفًا أو تداخلت حلقتان، عُد للحلقة العادية. الوضوح أهم من الإيجاز.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SECTION: Common Mistakes Accordion ===== -->
+<section id="mistakes">
+  <div class="container">
+    <div class="sec-head">
+      <span class="sec-eyebrow"><i class="fa-solid fa-triangle-exclamation"></i> أخطاء شائعة</span>
+      <h2>أخطاء يقع فيها الجميع — وحلولها</h2>
+      <p>انقر على كل خطأ لكشف المشكلة والحل. هذه أكثر الأخطاء تكرارًا عند تعلّم التحكم في التدفق وهياكل البيانات.</p>
+    </div>
+
+    <div class="accordion">
+      <div class="acc-item">
+        <div class="acc-head">
+          <div class="acc-title">
+            <div class="acc-num">01</div>
+            <span>حلقة while لا نهائية بسبب نسيان تحديث المتغير</span>
+          </div>
+          <div class="acc-icon"><i class="fa-solid fa-chevron-down"></i></div>
+        </div>
+        <div class="acc-body">
+          <div class="problem">
+            <strong>المشكلة:</strong> نسيت زيادة المتغير داخل الحلقة، فبقي الشرط صحيحًا للأبد، وتجمّد البرنامج.
+<pre style="margin-top:.75rem;">count <span class="o">=</span> <span class="n">0</span>
+<span class="k">while</span> count <span class="o">&lt;</span> <span class="n">5</span>:
+    <span class="f">print</span>(count)  <span class="c"># تكرار لا نهائي!</span></pre>
+          </div>
+          <div class="solution">
+            <strong>الحل:</strong> حدّث المتغير داخل الحلقة دائمًا، أو استخدم <code style="background:rgba(0,0,0,.08);padding:.1rem .4rem;border-radius:4px;">for</code> مع <code style="background:rgba(0,0,0,.08);padding:.1rem .4rem;border-radius:4px;">range()</code> حين يكون عدد التكرارات معروفًا.
+<pre style="margin-top:.75rem;">count <span class="o">=</span> <span class="n">0</span>
+<span class="k">while</span> count <span class="o">&lt;</span> <span class="n">5</span>:
+    <span class="f">print</span>(count)
+    count <span class="o">+=</span> <span class="n">1</span>  <span class="c"># ✅ التحديث</span></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="acc-item">
+        <div class="acc-head">
+          <div class="acc-title">
+            <div class="acc-num">02</div>
+            <span>الخلط بين = و == في الشروط</span>
+          </div>
+          <div class="acc-icon"><i class="fa-solid fa-chevron-down"></i></div>
+        </div>
+        <div class="acc-body">
+          <div class="problem">
+            <strong>المشكلة:</strong> استخدام <code style="background:rgba(0,0,0,.08);padding:.1rem .4rem;border-radius:4px;">=</code> (إسناد) داخل <code style="background:rgba(0,0,0,.08);padding:.1rem .4rem;border-radius:4px;">if</code> بدلًا من <code style="background:rgba(0,0,0,.08);padding:.1rem .4rem;border-radius:4px;">==</code> (مقارنة) — يسبب خطأ نحوي أو منطقي خفي.
+<pre style="margin-top:.75rem;"><span class="k">if</span> x <span class="o">=</span> <span class="n">5</span>:  <span class="c"># ❌ SyntaxError</span>
+    <span class="f">print</span>(<span class="s">'x is 5'</span>)</pre>
+          </div>
+          <div class="solution">
+            <strong>الحل:</strong> استخدم <code style="background:rgba(0,0,0,.08);padding:.1rem .4rem;border-radius:4px;">==</code> للمقارنة، و <code style="background:rgba(0,0,0,.08);padding:.1rem .4rem;border-radius:4px;">=</code> للإسناد فقط. (ملاحظة: بايثون 3.8+ يدعم <code style="background:rgba(0,0,0,.08);padding:.1rem .4rem;border-radius:4px;">:=</code> كعامل حمار، لكنه متقدم.)
+<pre style="margin-top:.75rem;"><span class="k">if</span> x <span class="o">==</span> <span class="n">5</span>:  <span class="c"># ✅ صحيح</span>
+    <span class="f">print</span>(<span class="s">'x is 5'</span>)</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="acc-item">
+        <div class="acc-head">
+          <div class="acc-title">
+            <div class="acc-num">03</div>
+            <span>استخدام list للتحقق من وجود عنصر في بيانات ضخمة</span>
+          </div>
+          <div class="acc-icon"><i class="fa-solid fa-chevron-down"></i></div>
+        </div>
+        <div class="acc-body">
+          <div class="problem">
+            <strong>المشكلة:</strong> البحث في قائمة كبير باستخدام <code style="background:rgba(0,0,0,.08);padding:.1rem .4rem;border-radius:4px;">in</code> يأخذ وقتًا خطيًا O(n) — كارثة على ملايين العناصر.
+<pre style="margin-top:.75rem;">emails <span class="o">=</span> [<span class="s">'a@x.com'</span>, <span class="s">'b@x.com'</span>, ...]  <span class="c"># مليون عنصر</span>
+<span class="k">if</span> <span class="s">'z@x.com'</span> <span class="k">in</span> emails:  <span class="c"># ❌ بطيء</span>
+    <span class="o">...</span></pre>
+          </div>
+          <div class="solution">
+            <strong>الحل:</strong> حوّل القائمة إلى set مرة واحدة، ثم ابحث فيها — البحث O(1) فائق السرعة.
+<pre style="margin-top:.75rem;">email_set <span class="o">=</span> <span class="f">set</span>(emails)  <span class="c"># مرة واحدة</span>
+<span class="k">if</span> <span class="s">'z@x.com'</span> <span class="k">in</span> email_set:  <span class="c"># ✅ سريع جدًا</span>
+    <span class="o">...</span></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="acc-item">
+        <div class="acc-head">
+          <div class="acc-title">
+            <div class="acc-num">04</div>
+            <span>تعديل قائمة أثناء المرور عليها بحلقة for</span>
+          </div>
+          <div class="acc-icon"><i class="fa-solid fa-chevron-down"></i></div>
+        </div>
+        <div class="acc-body">
+          <div class="problem">
+            <strong>المشكلة:</strong> حذف أو إضافة عناصر أثناء التكرار يسبب تخطّي عناصر أو سلوك غير متوقع.
+<pre style="margin-top:.75rem;"><span class="k">for</span> item <span class="k">in</span> items:
+    <span class="k">if</span> item <span class="o">&lt;</span> <span class="n">0</span>:
+        items.<span class="f">remove</span>(item)  <span class="c"># ❌ خطر</span></pre>
+          </div>
+          <div class="solution">
+            <strong>الحل:</strong> استخدم List Comprehension لإنشاء قائمة جديدة، أو كرّر على نسخة <code style="background:rgba(0,0,0,.08);padding:.1rem .4rem;border-radius:4px;">items[:]</code>.
+<pre style="margin-top:.75rem;">items <span class="o">=</span> [x <span class="k">for</span> x <span class="k">in</span> items <span class="k">if</span> x <span class="o">&gt;=</span> <span class="n">0</span>]  <span class="c"># ✅ آمن وأنظف</span></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="acc-item">
+        <div class="acc-head">
+          <div class="acc-title">
+            <div class="acc-num">05</div>
+            <span>إساءة استخدام List Comprehension لكل شيء</span>
+          </div>
+          <div class="acc-icon"><i class="fa-solid fa-chevron-down"></i></div>
+        </div>
+        <div class="acc-body">
+          <div class="problem">
+            <strong>المشكلة:</strong> بعض المبرمجين يستخدم List Comprehension لأسباب جانبية (مثل الطباعة) أو بحلقات متداخلة معقدة، فيصبح الكود غير مقروء.
+<pre style="margin-top:.75rem;">[<span class="f">print</span>(x) <span class="k">for</span> x <span class="k">in</span> items]  <span class="c"># ❌ يستخدم لغير هدفه</span>
+result <span class="o">=</span> [a<span class="o">+</span>b <span class="k">for</span> a <span class="k">in</span> A <span class="k">for</span> b <span class="k">in</span> B <span class="k">if</span> a<span class="o">&gt;</span>b <span class="k">for</span> c <span class="k">in</span> C <span class="k">if</span> c<span class="o">==</span>a]  <span class="c"># ❌ معقد جدًا</span></pre>
+          </div>
+          <div class="solution">
+            <strong>الحل:</strong> List Comprehension لإنشاء قائمة بمنطق واضح. للطباعة استخدم حلقة عادية. للتداخل المعقد، حلقة for صريحة أو دالة منفصلة.
+<pre style="margin-top:.75rem;"><span class="c"># ✅ استخدام صحيح</span>
+squares <span class="o">=</span> [x<span class="o">**</span><span class="n">2</span> <span class="k">for</span> x <span class="k">in</span> <span class="f">range</span>(<span class="n">10</span>)]
+
+<span class="c"># ✅ للطباعة — حلقة عادية</span>
+<span class="k">for</span> x <span class="k">in</span> items:
+    <span class="f">print</span>(x)</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CONCLUSION ===== -->
+<section class="conclusion" id="conclusion">
+  <div class="container">
+    <h2>البرمجة ليست حفظًا — <span class="gold">بل تفكيرًا منظّمًا</span></h2>
+    <p>
+      تعلّمت كيف توجّه كودك بإشارات التحكم، كيف تخزّن بياناتك بخزائن ذكية،
+      وكيف تكتب كودًا أسرع وأكثر أناقة بحيلة المحترفين.
+      الآن حان وقت التطبيق — فالإتقان يأتي منtrial والأخطاء.
+    </p>
+
+    <div class="cta-grid">
+      <div class="cta-item">
+        <i class="fa-solid fa-keyboard"></i>
+        <h4>طبّق فورًا</h4>
+        <p>افتح محرّر بايثون واكتب 5 أمثلة List Comprehension قبل النوم اليوم.</p>
+      </div>
+      <div class="cta-item">
+        <i class="fa-solid fa-bookmark"></i>
+        <h4>احفظ المرجع</h4>
+        <p>اطبع هذه الصفحة أو احفظها كملف PDF للرجوع السريع أثناء البرمجة.</p>
+      </div>
+      <div class="cta-item">
+        <i class="fa-solid fa-share-nodes"></i>
+        <h4>شارك المعرفة</h4>
+        <p>مرّر الرابط لزميل يتعلم بايثون — العلم يُضاعَف بمشاركته.</p>
+      </div>
+    </div>
+
+    <a class="cta-button" href="https://www.linkedin.com/in/ahmed-khalid97/" target="_blank" rel="noopener">
+      <i class="fa-brands fa-linkedin"></i>
+      زيارة حساب Ahmed Khaled على لينكدإن
+    </a>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-brand">
+      <i class="fa-brands fa-python"></i>
+      <span>دليل بايثون التعليمي</span>
+    </div>
+    <p style="margin-bottom:1rem;">أُعدّ بعناية ليكون مرجعًا عمليًا في التحكم بالتدفق وهياكل البيانات</p>
+    <a class="footer-link" href="https://www.linkedin.com/in/ahmed-khalid97/" target="_blank" rel="noopener">
+      <i class="fa-brands fa-linkedin"></i>
+      linkedin.com/in/ahmed-khalid97
+    </a>
+    <small>
+      © <span id="year"></span> Ahmed Khaled · صُمّم للتعلم والطباعة على A4
+    </small>
+  </div>
+</footer>
+
+<script>
+// ===== Year =====
+document.getElementById('year').textContent = new Date().getFullYear();
+
+// ===== Tabs =====
+const tabBtns = document.querySelectorAll('.tab-btn');
+const tabPanels = document.querySelectorAll('.tab-panel');
+tabBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = btn.dataset.tab;
+    tabBtns.forEach(b => b.classList.remove('active'));
+    tabPanels.forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + target).classList.add('active');
+  });
+});
+
+// ===== Accordion =====
+document.querySelectorAll('.acc-head').forEach(head => {
+  head.addEventListener('click', () => {
+    const item = head.parentElement;
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.acc-item').forEach(i => i.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+  });
+});
+
+// ===== Chart =====
+const canvas = document.getElementById('perfChart');
+const ctx = canvas.getContext('2d');
+
+// Benchmark-like relative values (microseconds, lower = better)
+// Based on real-world timing patterns: for+append is slowest,
+// list comprehension fastest, map() slightly behind comprehension
+const data = [
+  { label: 'for + append',     value: 142, color: '#ef4444' },
+  { label: 'List Comprehension', value: 68,  color: '#10b981' },
+  { label: 'map() + lambda',   value: 84,  color: '#fbbf24' }
+];
+
+function setupCanvas() {
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = Math.max(1, rect.width * dpr);
+  canvas.height = Math.max(1, rect.height * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return { w: rect.width, h: rect.height };
+}
+
+let animProgress = 0;
+let animRunning = false;
+
+function drawChart() {
+  const { w, h } = setupCanvas();
+  ctx.clearRect(0, 0, w, h);
+
+  const padding = { top: 30, right: 24, bottom: 60, left: 60 };
+  const chartW = Math.max(10, w - padding.left - padding.right);
+  const chartH = Math.max(10, h - padding.top - padding.bottom);
+  const maxVal = 160;
+
+  // Grid lines + Y axis labels
+  ctx.font = '11px "JetBrains Mono", monospace';
+  ctx.fillStyle = '#94a3b8';
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle';
+  for (let i = 0; i <= 4; i++) {
+    const y = padding.top + (chartH * i / 4);
+    const val = Math.round(maxVal - (maxVal * i / 4));
+    ctx.strokeStyle = '#e2e8f0';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 4]);
+    ctx.beginPath();
+    ctx.moveTo(padding.left, y);
+    ctx.lineTo(padding.left + chartW, y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillText(val + ' µs', padding.left - 8, y);
+  }
+
+  // Bars
+  const barWidth = Math.max(20, chartW / data.length * 0.55);
+  const gap = chartW / data.length;
+
+  data.forEach((d, i) => {
+    const x = padding.left + gap * i + (gap - barWidth) / 2;
+    const targetH = (d.value / maxVal) * chartH;
+    const barH = Math.max(0.5, targetH * animProgress);
+    const y = padding.top + chartH - barH;
+
+    // Bar gradient
+    const grad = ctx.createLinearGradient(0, y, 0, padding.top + chartH);
+    grad.addColorStop(0, d.color);
+    grad.addColorStop(1, d.color + '99');
+    ctx.fillStyle = grad;
+
+    // Rounded top
+    const r = 8;
+    ctx.beginPath();
+    ctx.moveTo(x, y + r);
+    ctx.arcTo(x, y, x + r, y, r);
+    ctx.lineTo(x + barWidth - r, y);
+    ctx.arcTo(x + barWidth, y, x + barWidth, y + r, r);
+    ctx.lineTo(x + barWidth, padding.top + chartH);
+    ctx.lineTo(x, padding.top + chartH);
+    ctx.closePath();
+    ctx.fill();
+
+    // Value on top (after some progress)
+    if (animProgress > 0.6) {
+      const op = Math.min(1, (animProgress - 0.6) / 0.4);
+      ctx.fillStyle = `rgba(15, 23, 42, ${op})`;
+      ctx.font = 'bold 13px "JetBrains Mono", monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      ctx.fillText(d.value + ' µs', x + barWidth / 2, y - 6);
+    }
+
+    // X-axis label
+    ctx.fillStyle = '#475569';
+    ctx.font = '12px "Tajawal", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    // Handle RTL label alignment: canvas itself doesn't care, but for visual order we keep natural LTR
+    ctx.fillText(d.label, x + barWidth / 2, padding.top + chartH + 12);
+
+    // Winner badge
+    if (d.value === Math.min(...data.map(v => v.value)) && animProgress > 0.95) {
+      ctx.fillStyle = '#10b981';
+      ctx.font = 'bold 10px "Tajawal", sans-serif';
+      ctx.fillText('★ الأسرع', x + barWidth / 2, padding.top + chartH + 30);
+    }
+  });
+
+  // Axis lines
+  ctx.strokeStyle = '#cbd5e1';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(padding.left, padding.top);
+  ctx.lineTo(padding.left, padding.top + chartH);
+  ctx.lineTo(padding.left + chartW, padding.top + chartH);
+  ctx.stroke();
+}
+
+function animateChart() {
+  if (animRunning) return;
+  animRunning = true;
+  const start = performance.now();
+  const duration = 1400;
+  function step(now) {
+    const t = Math.min(1, (now - start) / duration);
+    // easeOutCubic
+    animProgress = 1 - Math.pow(1 - t, 3);
+    drawChart();
+    if (t < 1) requestAnimationFrame(step);
+    else animRunning = false;
+  }
+  requestAnimationFrame(step);
+}
+
+// Initial draw at 0 progress
+drawChart();
+
+// Trigger animation when chart is visible
+const chartObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      animateChart();
+      chartObs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.3 });
+chartObs.observe(canvas);
+
+// Redraw on resize
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => drawChart(), 150);
+});
+</script>
+
+</body>
+</html>
